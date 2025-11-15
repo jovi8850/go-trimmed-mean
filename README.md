@@ -1,23 +1,58 @@
 # go-trimmed-mean  
-*A Go package for computing symmetric and asymmetric trimmed means with optional distribution diagnostics.*
+*A Go package for computing symmetric and asymmetric trimmed means with automated distribution diagnostics.*
 
 ---
 
 ## Overview
 
-`go-trimmed-mean` is an open-source Go package designed to compute **trimmed means**, a robust estimator of central tendency that reduces the influence of extreme values. The package supports:
+`go-trimmed-mean` is a robust statistical Go package designed to compute **trimmed means**—a method used to reduce the effect of extreme values by removing a percentage of data from the lower and/or upper tail of a distribution.
 
-- **Symmetric trimming** (e.g., remove 5% from both tails)
-- **Asymmetric trimming** (e.g., remove 2% low, 10% high)
-- **Distribution diagnostics**, including:
-  - Skewness
-  - Outlier detection
-  - Tail imbalance
-- **Automatic trimming recommendations** based on skewness interpretation
-- **Input validation & descriptive error handling**
-- **Unit tests** validating correctness and edge cases
+This version of the package supports:
 
-This package serves as a reusable statistical tool intended for data cleaning, robust statistical estimation, and academic coursework.
+### **Symmetric trimming**  
+Remove the same proportion from both ends (e.g., 5% low and 5% high).
+
+### **Asymmetric trimming**  
+Remove different proportions (e.g., 0% low and 20% high) useful for skewed data.
+
+### **Automatic trimming recommendations** via `AutoTrimmedMean`  
+Analyzes the distribution and determines appropriate trimming levels based on:
+
+- Sample **skewness**
+- Presence/number of **outliers**
+- Tail **imbalance**
+- Sample **variation**
+
+### **Comprehensive distribution diagnostics** (`EvaluateDistribution`)
+Includes:
+- Skewness  
+- Empirical standard deviation  
+- Outlier count via Tukey fences  
+- Recommended trimming proportions  
+- Tail direction (left/right skew)
+
+### **Integer and float support**
+All trimmed-mean functions have counterparts that accept `[]int`.
+
+### **Extensive input validation & detailed error messages**
+Prevents:
+- Negative trimming proportions  
+- LowTrim + HighTrim > 1  
+- Trimming too much for sample size  
+- Empty or nil slices  
+
+### **Full unit test suite**
+Validates:
+- Symmetric trimming  
+- Asymmetric trimming  
+- Integer and float variants  
+- Sorting behavior  
+- Auto-trimming logic  
+- Distribution evaluation  
+- Extreme skew/outlier cases  
+- Edge-case error conditions  
+
+This package is intended for academic, analytical, and data-processing applications where robustness and reproducibility are required.
 
 ---
 
@@ -37,10 +72,11 @@ C:.
 
 | File | Description |
 |------|-------------|
-| **go.mod** | Go module definition specifying module path and Go version. |
-| **README.md** | Repository documentation describing installation, design, and package scope. |
-| **trimmedmean/trimmedmean.go** | Core package logic containing trimmed-mean computation, symmetric/asymmetric trimming, skewness evaluation, outlier handling, and error validation. |
-| **trimmedmean/trimmedmean_test.go** | Unit tests validating trimming behavior, skewness calculations, sorting correctness, and error-handling logic. |
+| **go.mod** | Module definition specifying Go version and repository module path. |
+| **trimmedmean/trimmedmean.go** | Core implementation including trimmed mean logic, symmetric/asymmetric trimming, automatic trimming recommendation, skewness detection, input validation, and integer/float overloads. |
+| **trimmedmean/trimmedmean_test.go** | Full unit test suite verifying symmetric/asymmetric trimming, AutoTrimmedMean, skewness analysis, integer handling, outlier logic, and boundary conditions. |
+| **README.md** | Documentation for installation, usage, features, and AI tool disclosure. |
+
 
 ---
 
@@ -56,31 +92,29 @@ go get github.com/jovi8850/go-trimmed-mean/trimmedmean
 ```
 import "github.com/jovi8850/go-trimmed-mean/trimmedmean"
 ```
-You can now call the package’s exported functions such as:
-
-- SymmetricTrimmedMean()
-- AsymmetricTrimmedMean()
-- EvaluateDistribution()
 
 ## Testing
 
 ```
 go test ./...
 ```
-The tests validate:
-- Trimming correctness
-- Symmetric vs. asymmetric logic
-- Error handling
-- Skewness & distribution diagnostics
+The test suite validates:
+- Symmetric trimming (TrimmedMean(data, trim))
+- Asymmetric trimming (TrimmedMean(data, lowTrim, highTrim))
+- Integer trimming (TrimmedMeanInts)
+- Auto-trimming selection (AutoTrimmedMean, AutoTrimmedMeanInts)
+- Distribution evaluation (skewness/outliers)
+- Sorting correctness
+- Error validation and boundary checks
 
 ## GenAI Tools
 
-This project was developed with assistance from OpenAI’s ChatGPT, which was used for:
+This project was developed with assistance from OpenAI’s ChatGPT and DeepSeek, which was used for:
 
 - Helping design the trimmed mean algorithm structure
 - Suggesting error-handling techniques and recommended validation checks
-- Reviewing and refining Go code for idiomatic clarity
-- Generating template boilerplate for test files
+- Reviewing and refining Go code for idiomatic clarity (DeepSeek for Final Code Construction)
+- Generating template boilerplate for test files 
 - Creating the structure and text for this README.md
 
 All final code was reviewed, tested, and validated by the developer before inclusion in this repository.

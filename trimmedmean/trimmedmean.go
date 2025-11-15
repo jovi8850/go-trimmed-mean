@@ -67,7 +67,7 @@ func TrimmedMean(data []float64, trims ...float64) (float64, error) {
 		return 0, ErrInvalidTrim
 	}
 
-	// Sort ascending
+	// Sort ascending (essential for both symmetric and asymmetric trimming)
 	sort.Float64s(x)
 
 	// Calculate number of items to drop from each end using floor(n * trim)
@@ -87,6 +87,24 @@ func TrimmedMean(data []float64, trims ...float64) (float64, error) {
 	return sum / float64(len(trimmed)), nil
 }
 
+// AutoTrimmedMean automatically computes trimmed mean using distribution analysis.
+// It evaluates the data distribution and applies appropriate symmetric or asymmetric trimming.
+func AutoTrimmedMean(data []float64) (float64, TrimRecommendation, error) {
+	if len(data) == 0 {
+		return 0, TrimRecommendation{}, ErrEmptyData
+	}
+
+	// Get trimming recommendation based on data distribution
+	recommendation, err := EvaluateDistribution(data)
+	if err != nil {
+		return 0, recommendation, err
+	}
+
+	// Apply the recommended trimming
+	mean, err := TrimmedMean(data, recommendation.LowTrim, recommendation.HighTrim)
+	return mean, recommendation, err
+}
+
 // TrimmedMeanInts is a convenience wrapper that accepts []int.
 // It converts to float64 and calls TrimmedMean.
 func TrimmedMeanInts(data []int, trims ...float64) (float64, error) {
@@ -98,6 +116,18 @@ func TrimmedMeanInts(data []int, trims ...float64) (float64, error) {
 		f[i] = float64(v)
 	}
 	return TrimmedMean(f, trims...)
+}
+
+// AutoTrimmedMeanInts automatically computes trimmed mean for integer data using distribution analysis.
+func AutoTrimmedMeanInts(data []int) (float64, TrimRecommendation, error) {
+	if len(data) == 0 {
+		return 0, TrimRecommendation{}, ErrEmptyData
+	}
+	f := make([]float64, len(data))
+	for i, v := range data {
+		f[i] = float64(v)
+	}
+	return AutoTrimmedMean(f)
 }
 
 // EvaluateDistribution analyzes the provided numeric slice and returns a TrimRecommendation.
